@@ -1,16 +1,8 @@
-node_modules
-# Keep environment variables out of version control
+node_modules/
 .env
-
-/generated/prisma
-backend_of_login_signup/node_modules/
-backend_of_login_signup/.env
-backend_of_login_signup/dist/
-
-backend_of_login_signup/node_modules/
-backend_of_login_signup/.env
-backend_of_login_signup/dist/
-backend_of_login_signup/src/generated/
-backend_of_login_signup/.agents/
-backend_of_login_signup/.claude/
-backend_of_login_signup/.windsurf/
+dist/
+src/generated/
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
