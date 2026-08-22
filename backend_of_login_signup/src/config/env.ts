@@ -25,7 +25,17 @@ const envSchema = z.object({
     ACCESS_TOKEN_EXPIRES_IN: z.string().default("15m"),
 
     FRONTEND_URL: z.string().url(),
+
+    // Gmail / Nodemailer
+    GMAIL_USER: z.string().email(),
+    GMAIL_APP_PASSWORD: z.string().min(1),
+
+    // Cloudinary (optional — photo upload will fail gracefully without them)
+    CLOUDINARY_CLOUD_NAME: z.string().min(1).optional(),
+    CLOUDINARY_API_KEY: z.string().min(1).optional(),
+    CLOUDINARY_API_SECRET: z.string().min(1).optional(),
 });
+
 
 const result = envSchema.safeParse(process.env);
 
