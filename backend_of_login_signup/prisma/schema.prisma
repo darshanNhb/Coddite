@@ -19,24 +19,51 @@ enum UserStatus {
   DELETED
 }
 
-model User {
-  id            String     @id @default(cuid())
-  fullName      String
-  username      String     @unique
-  email         String     @unique
-  mobileNumber  String?
-  passwordHash  String
-  emailVerified Boolean    @default(false)
-  role          UserRole   @default(USER)
-  status        UserStatus @default(ACTIVE)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
 
-  sessions      Session[]
+enum SocialPlatform {
+  GITHUB
+  LINKEDIN
+  TWITTER
+  PERSONAL_WEBSITE
+  OTHER
+}
+
+model User {
+  id              String     @id @default(cuid())
+  fullName        String
+  username        String     @unique
+  email           String     @unique
+  mobileNumber    String?
+  passwordHash    String
+  emailVerified   Boolean    @default(false)
+  role            UserRole   @default(USER)
+  status          UserStatus @default(ACTIVE)
+
+  // Profile settings
+  profilePhotoUrl      String?
+  profilePhotoPublicId String?
+  gender               Gender?
+  location             String?
+  birthday             DateTime?
+
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  sessions        Session[]
+  auditLogs       AuditLog[]
+  socialLinks     SocialLink[]
+  educations      Education[]
+  workExperiences WorkExperience[]
+  skills          UserSkill[]
 
   @@index([email])
   @@index([username])
-  auditLogs AuditLog[]
 }
 
 model Session {
@@ -72,4 +99,68 @@ model AuditLog {
   @@index([userId])
   @@index([event])
   @@index([createdAt])
+}
+
+model SocialLink {
+  id        String         @id @default(cuid())
+  userId    String
+  platform  SocialPlatform
+  label     String?
+  url       String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Education {
+  id           String    @id @default(cuid())
+  userId       String
+  institution  String
+  degree       String?
+  fieldOfStudy String?
+  description  String?
+  startDate    DateTime?
+  endDate      DateTime?
+  current      Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model WorkExperience {
+  id             String    @id @default(cuid())
+  userId         String
+  jobTitle       String
+  company        String
+  employmentType String?
+  location       String?
+  description    String?
+  startDate      DateTime?
+  endDate        DateTime?
+  current        Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserSkill {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
 }
