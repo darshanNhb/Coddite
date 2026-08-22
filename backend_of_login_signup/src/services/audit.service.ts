@@ -11,15 +11,23 @@ export type AuditEvent =
     | "SESSION_REVOKED"
     | "REFRESH_REUSE_DETECTED"
     | "LOGOUT"
-    | "LOGOUT_ALL";
+    | "LOGOUT_ALL"
+    | "PROFILE_UPDATED"
+    | "EMAIL_CHANGE_REQUESTED"
+    | "EMAIL_CHANGED"
+    | "ACCOUNT_DELETE_REQUESTED"
+    | "ACCOUNT_DELETED"
+    | "SOCIAL_LINK_ADDED"
+    | "SOCIAL_LINK_REMOVED"
+    | "PROFILE_PHOTO_CHANGED";
 
 interface AuditData {
-    userId?: string;
+    userId?: string | undefined;
     event: AuditEvent;
-    ipAddress?: string;
-    userAgent?: string;
-    requestId?: string;
-    metadata?: Record<string, unknown>;
+    ipAddress?: string | undefined;
+    userAgent?: string | undefined;
+    requestId?: string | undefined;
+    metadata?: Record<string, unknown> | undefined;
 }
 
 export async function createAuditLog(
@@ -28,12 +36,12 @@ export async function createAuditLog(
     try {
         await prisma.auditLog.create({
             data: {
-                userId: data.userId,
+                userId: data.userId ?? null,
                 event: data.event,
-                ipAddress: data.ipAddress,
-                userAgent: data.userAgent,
-                requestId: data.requestId,
-                metadata: data.metadata,
+                ipAddress: data.ipAddress ?? null,
+                userAgent: data.userAgent ?? null,
+                requestId: data.requestId ?? null,
+                metadata: data.metadata ? (data.metadata as any) : null,
             },
         });
     } catch (error) {

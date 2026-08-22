@@ -1,5 +1,5 @@
-import redis from "../config/redis";
-import { generateOtp, hashOtp } from "../utils/otp";
+import redis from "../config/redis.js";
+import { generateOtp, hashOtp } from "../utils/otp.js";
 
 const RESET_OTP_TTL = 10 * 60;
 const MAX_ATTEMPTS = 5;
