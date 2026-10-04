@@ -1,0 +1,67 @@
+# Dependencies
+node_modules/
+
+# Environment files (NEVER commit secrets)
+.env
+.env.local
+.env.*.local
+.env.development
+.env.staging
+.env.production
+!.env.example
+
+# Keys and credentials
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Build output
+dist/
+build/
+.vite/
+
+# Prisma
+backend/prisma/*.db
+backend/prisma/*.db-journal
+
+# Test coverage
+coverage/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Sentry
+.sentryclirc
+
+# Playwright
+test-results/
+playwright-report/
+
+# k6
+infra/k6/results/
+
+# Docker
+.docker/
+
+# Turbo (if ever used)
+.turbo/

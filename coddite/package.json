@@ -1,0 +1,56 @@
+{
+  "name": "coddite",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "pnpm --filter @coddite/frontend --filter @coddite/backend --parallel dev",
+    "dev:frontend": "pnpm --filter @coddite/frontend dev",
+    "dev:backend": "pnpm --filter @coddite/backend dev",
+    "build": "pnpm -r build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm --filter @coddite/frontend test:e2e",
+    "db:migrate": "pnpm --filter @coddite/backend db:migrate",
+    "db:migrate:dev": "pnpm --filter @coddite/backend db:migrate:dev",
+    "db:test:reset": "pnpm --filter @coddite/backend db:test:reset",
+    "db:seed": "pnpm --filter @coddite/backend db:seed",
+    "db:studio": "pnpm --filter @coddite/backend db:studio",
+    "env:check": "node infra/scripts/env-check.js",
+    "secrets:generate": "node infra/scripts/generate-secrets.js",
+    "docs:build": "echo 'Documentation build — placeholder'",
+    "ml:evaluate": "pnpm --filter @coddite/ml evaluate",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
+    "eslint": "^9.17.0",
+    "eslint-plugin-import-x": "^4.6.1",
+    "eslint-plugin-jsdoc": "^50.6.3",
+    "eslint-plugin-n": "^17.15.1",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-security": "^3.0.1",
+    "globals": "^15.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0",
+    "prettier": "^3.4.2"
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css,html}": [
+      "prettier --write"
+    ]
+  }
+}
