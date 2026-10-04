@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: coddite
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: coddite_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coddite -d coddite_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  api:
+    build:
+      context: ../../
+      dockerfile: backend/Dockerfile
+    environment:
+      - DATABASE_URL=postgresql://coddite:password@postgres:5432/coddite_dev
+      - REDIS_URL=redis://redis:6379
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+      - NODE_ENV=development
+      - PORT=4000
+      - FRONTEND_URL=http://localhost:5173
+      - JWT_ACCESS_SECRET=mock-secret-for-local-docker-compose-only
+      - JWT_REFRESH_SECRET=mock-secret-for-local-docker-compose-only
+      - EMAIL_HASH_PEPPER=mock-secret-for-local-docker-compose-only
+      - EMAIL_ENCRYPTION_KEY=0123456789abcdef0123456789abcdef
+      - OTP_HMAC_SECRET=mock-secret-for-local-docker-compose-only
+      - IP_HASH_SALT=mock-secret-for-local-docker-compose-only
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ../../
+      dockerfile: backend/Dockerfile
+    command: ["npm", "run", "start:worker"]
+    environment:
+      - DATABASE_URL=postgresql://coddite:password@postgres:5432/coddite_dev
+      - REDIS_URL=redis://redis:6379
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+      - NODE_ENV=development
+      - JWT_ACCESS_SECRET=mock-secret-for-local-docker-compose-only
+      - JWT_REFRESH_SECRET=mock-secret-for-local-docker-compose-only
+      - EMAIL_HASH_PEPPER=mock-secret-for-local-docker-compose-only
+      - EMAIL_ENCRYPTION_KEY=0123456789abcdef0123456789abcdef
+      - OTP_HMAC_SECRET=mock-secret-for-local-docker-compose-only
+      - IP_HASH_SALT=mock-secret-for-local-docker-compose-only
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -1,0 +1,98 @@
+services:
+  # The API Server
+  - type: web
+    name: coddite-api
+    env: docker
+    dockerfilePath: backend/Dockerfile
+    buildCommand: pnpm --filter @coddite/backend db:migrate
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: CACHE_REDIS_URL
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: APP_NAME
+        value: Coddite
+      - key: API_BASE_URL
+        sync: false
+      - key: WEB_BASE_URL
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: TRUST_PROXY
+        value: "1"
+      - key: RUN_WORKER_IN_API
+        value: "true"
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: EMAIL_HASH_PEPPER
+        sync: false
+      - key: EMAIL_ENCRYPTION_KEY
+        sync: false
+      - key: OTP_HMAC_SECRET
+        sync: false
+      - key: IP_HASH_SALT
+        sync: false
+      - key: COOKIE_DOMAIN
+        sync: false
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: COOKIE_SAMESITE
+        value: "none"
+      - key: EMAIL_PROVIDER
+        value: "resend"
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: "Coddite <noreply@yourdomain.com>"
+      - key: STORAGE_PROVIDER
+        value: "cloudinary"
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: AI_ENABLED
+        value: "true"
+      - key: TOXICITY_PROVIDER
+        value: "heuristic"
+      - key: EMBEDDING_PROVIDER
+        value: "heuristic"
+      - key: TAGGING_PROVIDER
+        value: "heuristic"
+      - key: LLM_PROVIDER
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+    startCommand: npm run start
+    healthCheckPath: /health/live
+
+  # The Background Worker
+  - type: worker
+    name: coddite-worker
+    env: docker
+    dockerfilePath: backend/Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: web
+          name: coddite-api
+          envVarKey: DATABASE_URL
+      - key: REDIS_URL
+        fromService:
+          type: web
+          name: coddite-api
+          envVarKey: REDIS_URL
+      - key: NODE_ENV
+        value: production
+    startCommand: npm run start:worker

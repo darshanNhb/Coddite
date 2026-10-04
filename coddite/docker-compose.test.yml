@@ -1,0 +1,36 @@
+# =============================================================================
+# Coddite — Test Services (ephemeral, for CI and local test runs)
+# Start with: docker compose -f docker-compose.test.yml up -d
+# =============================================================================
+
+services:
+  postgres-test:
+    image: pgvector/pgvector:pg17
+    container_name: coddite-postgres-test
+    environment:
+      POSTGRES_USER: coddite_test
+      POSTGRES_PASSWORD: coddite_test
+      POSTGRES_DB: coddite_test
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coddite_test"]
+      interval: 3s
+      timeout: 2s
+      retries: 5
+
+  redis-test:
+    image: redis:7-alpine
+    container_name: coddite-redis-test
+    command: redis-server --maxmemory-policy noeviction
+    ports:
+      - "6380:6379"
+    tmpfs:
+      - /data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 2s
+      retries: 5

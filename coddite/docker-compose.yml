@@ -1,0 +1,55 @@
+# =============================================================================
+# Coddite — Local Development Services
+# Start with: docker compose up -d
+# =============================================================================
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: coddite-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-coddite}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-coddite_local_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-coddite}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - coddite_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-coddite}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: coddite-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory-policy noeviction --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - coddite_redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: coddite-mailpit
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"  # SMTP
+      - "${MAILPIT_UI_PORT:-8025}:8025"    # Web UI
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8025/api/v1/info"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  coddite_pgdata:
+  coddite_redisdata:
