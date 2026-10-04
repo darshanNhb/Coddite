@@ -1,0 +1,16 @@
+# Ensure consistent line endings
+* text=auto eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.avif binary
+*.woff binary
+*.woff2 binary
+
+# Lock files — do not diff
+pnpm-lock.yaml -diff
