@@ -1,0 +1,229 @@
+openapi: 3.0.0
+info:
+  title: Coddite API
+  description: Backend API for the Coddite platform
+  version: 1.0.0
+servers:
+  - url: /api/v1
+paths:
+  /auth/signup:
+    post:
+      summary: Request an OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        '200':
+          description: OTP sent
+  /auth/signup/verify:
+    post:
+      summary: Verify OTP and login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                otp:
+                  type: string
+      responses:
+        '200':
+          description: Logged in, cookies set
+  /auth/me:
+    get:
+      summary: Get current user
+      responses:
+        '200':
+          description: Returns user profile
+  /communities:
+    get:
+      summary: List communities
+      responses:
+        '200':
+          description: A list of communities
+    post:
+      summary: Create community
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                slug:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Created
+  /posts:
+    get:
+      summary: List posts
+      parameters:
+        - name: communityId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of posts
+    post:
+      summary: Create a post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                communityId:
+                  type: string
+                title:
+                  type: string
+                bodyMarkdown:
+                  type: string
+      responses:
+        '201':
+          description: Created
+  /posts/{id}/accept-answer:
+    post:
+      summary: Accept an answer for a post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commentId:
+                  type: string
+      responses:
+        '200':
+          description: Answer accepted
+  /comments:
+    get:
+      summary: List comments for a post
+      parameters:
+        - name: postId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Comments array
+    post:
+      summary: Create a comment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                postId:
+                  type: string
+                bodyMarkdown:
+                  type: string
+                parentId:
+                  type: string
+      responses:
+        '201':
+          description: Created
+  /votes:
+    post:
+      summary: Cast a vote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                targetType:
+                  type: string
+                  enum: [POST, COMMENT]
+                targetId:
+                  type: string
+                value:
+                  type: integer
+                  enum: [1, 0, -1]
+      responses:
+        '200':
+          description: Voted
+  /feed:
+    get:
+      summary: Get global hot feed
+      responses:
+        '200':
+          description: A list of posts
+  /posts/similar:
+    get:
+      summary: Get similar posts
+      parameters:
+        - name: text
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of similar posts
+  /posts/tags/suggest:
+    post:
+      summary: Suggest tags for text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+      responses:
+        '200':
+          description: List of tags
+  /reports:
+    post:
+      summary: Report content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                targetType:
+                  type: string
+                targetId:
+                  type: string
+                reason:
+                  type: string
+      responses:
+        '201':
+          description: Created
+    get:
+      summary: Get reports (Mods only)
+      responses:
+        '200':
+          description: A list of reports

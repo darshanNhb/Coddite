@@ -1,0 +1,2 @@
+# Backend module directory structure placeholders
+# Each module will contain: routes.js, controller.js, service.js, repository.js, schemas.js, test.js

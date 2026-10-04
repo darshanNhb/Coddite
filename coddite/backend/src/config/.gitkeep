@@ -1,0 +1,1 @@
+# Backend config directory — env.js will be the only file that reads process.env

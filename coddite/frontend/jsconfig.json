@@ -1,0 +1,13 @@
+{
+  "extends": "../jsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "paths": {
+      "@coddite/shared": ["../shared/src/index.js"],
+      "@coddite/shared/*": ["../shared/src/*.js"]
+    }
+  },
+  "include": ["src/**/*.js", "src/**/*.jsx"],
+  "exclude": ["node_modules"]
+}

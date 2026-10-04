@@ -1,0 +1,14 @@
+{
+  "extends": "../jsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@coddite/shared": ["../shared/src/index.js"],
+      "@coddite/shared/*": ["../shared/src/*.js"],
+      "@coddite/ml": ["../ml/src/index.js"],
+      "@coddite/ml/*": ["../ml/src/*.js"]
+    }
+  },
+  "include": ["src/**/*.js", "prisma/**/*.js"],
+  "exclude": ["node_modules"]
+}

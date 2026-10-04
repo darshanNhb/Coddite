@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: pgvector/pgvector:pg15
+        env:
+          POSTGRES_USER: coddite
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: coddite_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.15.4
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Typecheck
+        run: pnpm run typecheck
+        
+      - name: Lint
+        run: pnpm run lint
+        
+      - name: Generate Prisma Client & Migrate Test DB
+        working-directory: ./backend
+        env:
+          DATABASE_URL: postgresql://coddite:password@localhost:5432/coddite_test
+        run: |
+          pnpm exec prisma generate
+          pnpm exec prisma migrate deploy
+          
+      - name: Run Tests
+        env:
+          DATABASE_URL: postgresql://coddite:password@localhost:5432/coddite_test
+          REDIS_URL: redis://localhost:6379
+          JWT_ACCESS_SECRET: test-secret-key-that-is-at-least-64-chars-long-12345678901234567890
+          JWT_REFRESH_SECRET: test-refresh-secret-that-is-at-least-64-chars-long-123456789012
+          EMAIL_HASH_PEPPER: test-pepper-that-is-at-least-32-chars-long-123456
+          EMAIL_ENCRYPTION_KEY: test-enc-key-that-is-exactly-32-bytes-long=
+          OTP_HMAC_SECRET: test-otp-hmac-secret-that-is-at-least-32-chars
+          IP_HASH_SALT: test-ip-hash-salt-that-is-at-least-32-chars-long
+          FRONTEND_URL: http://localhost:5173
+          NODE_ENV: test
+          RL_AUTH_PER_15MIN: 1000
+          RL_GLOBAL_PER_MIN: 1000
+        run: pnpm run test
