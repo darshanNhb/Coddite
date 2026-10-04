@@ -1,0 +1,12 @@
+{
+  "extends": "../jsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@coddite/shared": ["../shared/src/index.js"],
+      "@coddite/shared/*": ["../shared/src/*.js"]
+    }
+  },
+  "include": ["src/**/*.js"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,12 @@
+[
+  { "text": "I really love this framework, great job!", "label": 0 },
+  { "text": "You are a complete idiot and should delete your account.", "label": 1 },
+  { "text": "Can someone help me with this bug?", "label": 0 },
+  { "text": "This is absolute garbage software.", "label": 1 },
+  { "text": "Thanks for sharing this tutorial.", "label": 0 },
+  { "text": "Shut up and go die.", "label": 1 },
+  { "text": "I disagree with your approach, but it's interesting.", "label": 0 },
+  { "text": "You're all a bunch of losers.", "label": 1 },
+  { "text": "What is the best way to structure this?", "label": 0 },
+  { "text": "Go to hell you dumb moron.", "label": 1 }
+]
