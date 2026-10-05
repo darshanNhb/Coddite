@@ -99,6 +99,13 @@ export async function createComment(data, profileId) {
     return c;
   });
 
+  try {
+    const { invalidatePost } = await import('../../lib/cache.js');
+    await invalidatePost(data.postId);
+  } catch (err) {
+    logger.error('Cache invalidation error:', err);
+  }
+
   // Emit live update to anyone on the post page
   try {
     const { emitToPost, emitToProfile } = await import('../../lib/socket.js');
@@ -218,10 +225,19 @@ export async function updateComment(id, data, profileId, globalRole) {
     throw new AppError(403, 'Forbidden');
   }
 
-  return prisma.comment.update({
+  const updated = await prisma.comment.update({
     where: { id },
     data
   });
+
+  try {
+    const { invalidatePost } = await import('../../lib/cache.js');
+    await invalidatePost(updated.postId);
+  } catch (err) {
+    logger.error('Cache invalidation error:', err);
+  }
+
+  return updated;
 }
 
 /**
@@ -270,6 +286,13 @@ export async function deleteComment(id, removedReason, profileId, globalRole) {
 
     return c;
   });
+
+  try {
+    const { invalidatePost } = await import('../../lib/cache.js');
+    await invalidatePost(comment.postId);
+  } catch (err) {
+    logger.error('Cache invalidation error:', err);
+  }
 
   if (isMod && !isAuthor) {
     await writeAuditLog({

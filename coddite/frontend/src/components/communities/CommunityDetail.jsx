@@ -119,7 +119,10 @@ export function CommunityDetail() {
       <div>
         <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">Posts</h2>
-          <button className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-sm font-medium text-zinc-900 dark:text-white hover:bg-white/20 transition-colors">
+          <button 
+            onClick={() => window.location.href = `/submit?communityId=${community.id}`}
+            className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-sm font-medium text-zinc-900 dark:text-white hover:bg-white/20 transition-colors"
+          >
             <Plus className="h-4 w-4" />
             Create Post
           </button>

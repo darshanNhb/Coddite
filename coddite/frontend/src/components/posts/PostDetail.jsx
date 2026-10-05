@@ -51,7 +51,10 @@ function Comment({ comment, onVote, onReply }) {
             {comment.bodyMarkdown}
           </div>
           <div className="flex gap-4 text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-2">
-            <button onClick={() => setIsReplying(!isReplying)} className="flex items-center gap-1.5 hover:bg-zinc-100 dark:hover:bg-surface-darker px-2 py-1 rounded transition-colors">
+            <button onClick={() => {
+              if (!user) return alert("Log in to comment");
+              setIsReplying(!isReplying);
+            }} className="flex items-center gap-1.5 hover:bg-zinc-100 dark:hover:bg-surface-darker px-2 py-1 rounded transition-colors">
               <MessageSquare className="h-3.5 w-3.5" /> Reply
             </button>
           </div>
@@ -194,6 +197,7 @@ export function PostDetail() {
   };
 
   const onSubmitComment = async (data) => {
+    if (!user) return alert("Log in to comment");
     try {
       await commentApi.create(data);
       reset();
@@ -204,6 +208,7 @@ export function PostDetail() {
   };
 
   const onReplyComment = async (data) => {
+    if (!user) return alert("Log in to comment");
     try {
       await commentApi.create(data);
       fetchPost();
@@ -256,21 +261,28 @@ export function PostDetail() {
 
       {/* Comment Form */}
       <div className="rounded-2xl bg-white dark:bg-surface-dark p-6 border border-zinc-200 dark:border-border-dark shadow-sm">
-        <form onSubmit={handleSubmit(onSubmitComment)}>
-          <textarea
-            {...register('bodyMarkdown')}
-            rows={4}
-            placeholder="What are your thoughts?"
-            className="block w-full rounded-xl border border-zinc-200 dark:border-border-dark bg-zinc-50 dark:bg-surface-darker py-3 px-4 text-sm text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:bg-white dark:focus:bg-surface-dark transition-colors"
-          />
-          {errors.bodyMarkdown && <p className="mt-2 text-sm text-red-500 font-medium">{errors.bodyMarkdown.message}</p>}
-          <div className="mt-4 flex justify-end">
-            <button type="submit" disabled={isSubmitting} className="rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50 transition-colors flex items-center gap-2">
-              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isSubmitting ? 'Posting...' : 'Comment'}
-            </button>
+        {user ? (
+          <form onSubmit={handleSubmit(onSubmitComment)}>
+            <textarea
+              {...register('bodyMarkdown')}
+              rows={4}
+              placeholder="What are your thoughts?"
+              className="block w-full rounded-xl border border-zinc-200 dark:border-border-dark bg-zinc-50 dark:bg-surface-darker py-3 px-4 text-sm text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:bg-white dark:focus:bg-surface-dark transition-colors"
+            />
+            {errors.bodyMarkdown && <p className="mt-2 text-sm text-red-500 font-medium">{errors.bodyMarkdown.message}</p>}
+            <div className="mt-4 flex justify-end">
+              <button type="submit" disabled={isSubmitting} className="rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-600 disabled:opacity-50 transition-colors flex items-center gap-2">
+                {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                {isSubmitting ? 'Posting...' : 'Comment'}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="flex items-center justify-between border border-zinc-200 dark:border-border-dark rounded-xl p-4 bg-zinc-50 dark:bg-surface-darker">
+            <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Log in or sign up to leave a comment</p>
+            <Link to="/login" className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white hover:bg-brand-600 transition-colors">Log In</Link>
           </div>
-        </form>
+        )}
       </div>
 
       {/* Comment Thread */}

@@ -14,10 +14,13 @@ export function CreatePost() {
   // Note: we need the communityId, but the URL gives us the slug.
   // Realistically we'd fetch the community first or pass it in state.
   // We'll require it passed via state for simplicity, or fetch it.
+  const [searchParams] = window.location.search ? [new URLSearchParams(window.location.search)] : [new URLSearchParams()];
+  const initialCommunityId = searchParams.get('communityId') || '';
+
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(CreatePostSchema),
     defaultValues: {
-      communityId: '',
+      communityId: initialCommunityId,
       title: '',
       bodyMarkdown: '',
       isNsfw: false,

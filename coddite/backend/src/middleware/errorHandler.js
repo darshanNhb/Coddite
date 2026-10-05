@@ -20,7 +20,8 @@ export function errorHandler(err, req, res, next) {
     return res.status(err.statusCode).json({ error: err.message, code: err.code });
   }
 
-  logger.error('[errorHandler] Uncaught error:', err);
+  logger.error({ err }, '[errorHandler] Uncaught error');
+  console.error(err);
   const payload = { error: 'Internal server error' };
   if (process.env.NODE_ENV !== 'production') {
     payload.message = err.message;
