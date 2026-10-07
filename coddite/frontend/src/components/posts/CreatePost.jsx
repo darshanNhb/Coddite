@@ -4,12 +4,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreatePostSchema } from '@coddite/shared/schemas/posts.schemas';
 import { postApi } from '../../api/client';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
+import { apiFetch } from '../../api/client';
 
 export function CreatePost() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
+  const [tags, setTags] = useState([]);
+  const [isSuggestingTags, setIsSuggestingTags] = useState(false);
 
   // Note: we need the communityId, but the URL gives us the slug.
   // Realistically we'd fetch the community first or pass it in state.
@@ -17,7 +20,7 @@ export function CreatePost() {
   const [searchParams] = window.location.search ? [new URLSearchParams(window.location.search)] : [new URLSearchParams()];
   const initialCommunityId = searchParams.get('communityId') || '';
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, formState: { errors, isSubmitting }, getValues } = useForm({
     resolver: zodResolver(CreatePostSchema),
     defaultValues: {
       communityId: initialCommunityId,
@@ -27,9 +30,25 @@ export function CreatePost() {
     }
   });
 
+  const handleSuggestTags = async () => {
+    const text = getValues('title') + '\n' + getValues('bodyMarkdown');
+    if (!text.trim()) return setError('Please write some content first to get AI tag suggestions.');
+    
+    try {
+      setIsSuggestingTags(true);
+      setError(null);
+      const res = await apiFetch('/posts/tags/suggest', { method: 'POST', body: JSON.stringify({ text }) });
+      setTags(res.data);
+    } catch (err) {
+      setError(err.message || 'Failed to suggest tags');
+    } finally {
+      setIsSuggestingTags(false);
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
-      const res = await postApi.create(data);
+      const res = await postApi.create({ ...data, tags });
       navigate(`/p/${res.data.id}`);
     } catch (err) {
       setError(err.message || 'Failed to create post');
@@ -79,6 +98,30 @@ export function CreatePost() {
             className="mt-2 block w-full rounded-xl border-0 bg-zinc-50 dark:bg-surface-darker py-2 border border-zinc-200 dark:border-border-dark focus:bg-white dark:focus:bg-surface-dark transition-colors px-3 text-zinc-900 dark:text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand-500 sm:text-sm sm:leading-6"
           />
           {errors.bodyMarkdown && <p className="mt-1 text-sm text-red-400">{errors.bodyMarkdown.message}</p>}
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-medium leading-6 text-zinc-900 dark:text-white">Tags (Optional)</label>
+            <button
+              type="button"
+              onClick={handleSuggestTags}
+              disabled={isSuggestingTags}
+              className="flex items-center gap-1.5 text-xs font-medium text-brand-500 hover:text-brand-400 disabled:opacity-50 transition-colors"
+            >
+              {isSuggestingTags ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+              AI Suggest
+            </button>
+          </div>
+          {tags.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <span key={tag} className="inline-flex items-center rounded-md bg-brand-500/10 px-2 py-1 text-xs font-medium text-brand-500 ring-1 ring-inset ring-brand-500/20">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-x-3">
